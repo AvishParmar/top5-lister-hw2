@@ -23,8 +23,8 @@ class App extends React.Component {
 
         // SETUP THE INITIAL STATE
         this.state = {
-            currentList : null,
-            sessionData : loadedSessionData
+            currentList: null,
+            sessionData: loadedSessionData
         }
     }
     sortKeyNamePairsByName = (keyNamePairs) => {
@@ -118,10 +118,12 @@ class App extends React.Component {
     closeCurrentList = () => {
         this.setState(prevState => ({
             currentList: null,
-            listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
+            listKeyPairMarkedForDeletion: prevState.listKeyPairMarkedForDeletion,
             sessionData: this.state.sessionData
         }), () => {
             // ANY AFTER EFFECTS?
+            let items = document.getElementById("");
+
         });
     }
     deleteList = () => {
@@ -145,7 +147,7 @@ class App extends React.Component {
     render() {
         return (
             <div id="app-root">
-                <Banner 
+                <Banner
                     title='Top 5 Lister'
                     closeCallback={this.closeCurrentList} />
                 <Sidebar
@@ -159,7 +161,7 @@ class App extends React.Component {
                 />
                 <Workspace
                     currentList={this.state.currentList} />
-                <Statusbar 
+                <Statusbar
                     currentList={this.state.currentList} />
                 <DeleteModal
                     hideDeleteListModalCallback={this.hideDeleteListModal}
