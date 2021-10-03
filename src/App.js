@@ -126,23 +126,29 @@ class App extends React.Component {
 
         });
     }
-    deleteList = () => {
+    deleteList = (keyNamePair) => {
         // SOMEHOW YOU ARE GOING TO HAVE TO FIGURE OUT
         // WHICH LIST IT IS THAT THE USER WANTS TO
         // DELETE AND MAKE THAT CONNECTION SO THAT THE
         // NAME PROPERLY DISPLAYS INSIDE THE MODAL
-        this.showDeleteListModal();
-        
+        this.setState(prevState => ({
+            currentList: prevState.currentList,
+            listKeyPairMarkedForDeletion: keyNamePair,
+            sessionData: prevState.sessionData
+
+        }), () =>{
+            this.showDeleteListModal();
+        })
     }
 
     renameItem = (key, newName) => {
         let currentList = this.state.currentList
     
-
         currentList.items[key]=newName
-        
+
         this.setState(prevState => ({
             currentList: this.state.currentList,
+            listKeyPairMarkedForDeletion: prevState.listKeyPairMarkedForDeletion,
             sessionData: {
                 nextKey: prevState.sessionData.nextKey,
                 counter: prevState.sessionData.counter,
@@ -188,6 +194,7 @@ class App extends React.Component {
                 <Statusbar
                     currentList={this.state.currentList} />
                 <DeleteModal
+                    listKeyPair={this.state.listKeyPairMarkedForDeletion}
                     hideDeleteListModalCallback={this.hideDeleteListModal}
                 />
             </div>

@@ -6,7 +6,7 @@ export default class Workspace extends React.Component {
 
         this.state = {
             items: this.props.items,
-            editActive: false
+            editActive: -1
         }
     }
     componentDidUpdate(prevProps) {
@@ -16,16 +16,17 @@ export default class Workspace extends React.Component {
 
         }
     }
-    handleClick = (event) => {
+    handleClick = (event, index) => {
         if (event.detail === 2) {
-            this.handleToggleEdit();
+            this.handleToggleEdit(index);
             // console.log(item);
         }
     }
-    handleToggleEdit = () => {
+    handleToggleEdit = (index) => {
+        console.log(index)
         this.setState({
             items: this.state.items,
-            editActive: !this.state.editActive
+            editActive: index
         });
     }
     handleUpdate = (event) => {
@@ -48,6 +49,7 @@ export default class Workspace extends React.Component {
 
     render() {
         // console.log(items)
+        
         return (
             <div id="top5-workspace">
                 <div id="workspace-edit">
@@ -64,9 +66,10 @@ export default class Workspace extends React.Component {
                                 <div
                                     id={index}
                                     className="item-number"
-                                    onClick={event => this.handleClick(event, item, index)}
+                                    onClick={event => this.handleClick(event, index)}
                                     onKeyPress={event => this.handleKeyPress(event, index)}>
-                                    {this.state.editActive
+                                    
+                                    {(this.state.editActive === index)
                                         ? <input
                                             id={index}
                                             className='item-number'
