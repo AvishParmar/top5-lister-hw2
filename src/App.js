@@ -69,6 +69,7 @@ class App extends React.Component {
             // PUTTING THIS NEW LIST IN PERMANENT STORAGE
             // IS AN AFTER EFFECT
             this.db.mutationCreateList(newList);
+            this.db.mutationUpdateSessionData(this.state.sessionData);
         });
     }
     renameList = (key, newName) => {
@@ -172,6 +173,34 @@ class App extends React.Component {
         let modal = document.getElementById("delete-modal");
         modal.classList.remove("is-visible");
     }
+
+    confirmDeleteListModal(listKeyPair, keyNamePairs){
+        let current = this.state.currentList
+        console.log(current)
+        console.log(listKeyPair)
+        if(current !== null){
+            if(listKeyPair.key == current.key){
+                current = null
+                console.log("testing")
+            }
+        }
+        
+        const newKeyNamePairs = keyNamePairs.filter(keyNamePair => keyNamePair != listKeyPair)
+
+        this.setState(prevState => ({
+            currentList: current,
+            listKeyPairMarkedForDeletion: listKeyPair,
+            sessionData: {
+                nextKey: prevState.sessionData.nextKey,
+                counter: prevState.sessionData.counter,
+                keyNamePairs: newKeyNamePairs
+            }
+        }), () => {
+            this.hideDeleteListModal();
+            this.db.mutationUpdateList(newKeyNamePairs);
+            this.db.mutationUpdateSessionData(this.state.sessionData); 
+        })
+    }
     render() {
         return (
             <div id="app-root">
@@ -196,6 +225,9 @@ class App extends React.Component {
                 <DeleteModal
                     listKeyPair={this.state.listKeyPairMarkedForDeletion}
                     hideDeleteListModalCallback={this.hideDeleteListModal}
+                    confirmDeleteListModalCallback= {(keyNamePair) => {
+                        this.confirmDeleteListModal(keyNamePair, this.state.sessionData.keyNamePairs)
+                   }}
                 />
             </div>
         );

@@ -11,8 +11,14 @@ export default class Workspace extends React.Component {
     }
     componentDidUpdate(prevProps) {
         // Typical usage (don't forget to compare props):
+        
         if (this.props.currentList !== prevProps.currentList) {
-            this.setState({ items: this.props.currentList.items, editActive: prevProps.editActive });
+            let items = null
+            if(this.props.currentList !== null){
+                items = this.props.currentList.items
+            }
+            
+            this.setState({ items: items, editActive: prevProps.editActive });
 
         }
     }

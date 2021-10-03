@@ -14,7 +14,7 @@ export default class DeleteModal extends Component {
     // }
     render() {
         
-        const { listKeyPair, hideDeleteListModalCallback} = this.props;
+        const { listKeyPair, hideDeleteListModalCallback, confirmDeleteListModalCallback, keyNamePairs} = this.props;
         let name = "";
         
         console.log(listKeyPair)
@@ -35,6 +35,7 @@ export default class DeleteModal extends Component {
                         <button
                             id="dialog-yes-button"
                             className="modal-button"
+                            onClick={() => confirmDeleteListModalCallback(listKeyPair, keyNamePairs)}
                         >Confirm</button>
                         <button
                             id="dialog-no-button"
