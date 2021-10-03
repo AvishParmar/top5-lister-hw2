@@ -132,6 +132,28 @@ class App extends React.Component {
         // DELETE AND MAKE THAT CONNECTION SO THAT THE
         // NAME PROPERLY DISPLAYS INSIDE THE MODAL
         this.showDeleteListModal();
+        
+    }
+
+    renameItem = (key, newName) => {
+        let currentList = this.state.currentList
+    
+
+        currentList.items[key]=newName
+        
+        this.setState(prevState => ({
+            currentList: this.state.currentList,
+            sessionData: {
+                nextKey: prevState.sessionData.nextKey,
+                counter: prevState.sessionData.counter,
+                keyNamePairs: prevState.sessionData.keyNamePairs
+            }
+        }), () => {
+            let list = this.db.queryGetList(currentList.key);
+            list.items[key]=newName
+            this.db.mutationUpdateList(list);
+            this.db.mutationUpdateSessionData(this.state.sessionData);
+        });
     }
     // THIS FUNCTION SHOWS THE MODAL FOR PROMPTING THE USER
     // TO SEE IF THEY REALLY WANT TO DELETE THE LIST
@@ -160,7 +182,9 @@ class App extends React.Component {
                     renameListCallback={this.renameList}
                 />
                 <Workspace
-                    currentList={this.state.currentList} />
+                    currentList={this.state.currentList} 
+                    renameItemCallback={this.renameItem}
+                />    
                 <Statusbar
                     currentList={this.state.currentList} />
                 <DeleteModal
