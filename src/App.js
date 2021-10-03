@@ -123,8 +123,8 @@ class App extends React.Component {
             sessionData: this.state.sessionData
         }), () => {
             // ANY AFTER EFFECTS?
-            let items = document.getElementById("");
-
+            // let list = this.db.queryGetList(currentList.key);
+            this.db.mutationUpdateSessionData(this.state.sessionData);
         });
     }
     deleteList = (keyNamePair) => {
@@ -206,7 +206,7 @@ class App extends React.Component {
             <div id="app-root">
                 <Banner
                     title='Top 5 Lister'
-                    closeCallback={this.closeCurrentList} />
+                    closeCallBack={this.closeCurrentList} />
                 <Sidebar
                     heading='Your Lists'
                     currentList={this.state.currentList}
