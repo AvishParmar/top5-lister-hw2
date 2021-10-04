@@ -33,6 +33,27 @@ class App extends React.Component {
             sessionData: loadedSessionData
         }
     }
+
+    componentDidMount() {
+        window.addEventListener('keydown', this.handleKey);
+        window.focus();
+    }
+    
+    componentWillUnmount() {
+        window.removeEventListener('keydown', this.handleKey);
+    }
+    
+    handleKey = (event) => {
+        if(event.ctrlKey){
+            if(event.keyCode === 90){
+                this.undoList();
+            }
+            else if(event.keyCode === 89){
+                this.redoList();
+            }
+        }
+    }
+
     sortKeyNamePairsByName = (keyNamePairs) => {
         keyNamePairs.sort((keyPair1, keyPair2) => {
             // GET THE LISTS

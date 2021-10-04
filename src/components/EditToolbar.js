@@ -6,7 +6,7 @@ export default class EditToolbar extends React.Component {
 
         this.state = {
             jsTPS: this.props.jsTPS,
-            currentList: this.props.currentList
+            current: this.props.currentList
         }
     }
 
@@ -25,6 +25,8 @@ export default class EditToolbar extends React.Component {
         if(event.detail === 1)
             this.props.redoCallBack();
     }
+
+    
     render() {
         
         return (
@@ -49,7 +51,7 @@ export default class EditToolbar extends React.Component {
                     id='close-button'
                     className="top5-button"
                     onClick={this.handleClose}
-                    style={(this.state.currentList === null) ? {opacity: 0.5} : {}}
+                    style={(this.state.current === null) ? {opacity: 0.5} : {}}
                     >
                         &#x24E7;
                 </div>
