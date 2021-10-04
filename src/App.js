@@ -10,6 +10,9 @@ import Banner from './components/Banner.js'
 import Sidebar from './components/Sidebar.js'
 import Workspace from './components/Workspace.js';
 import Statusbar from './components/Statusbar.js'
+import jsTPS from './common/jsTPS';
+import ChangeItem_Transaction from './transactions/ChangeItem_Transaction'
+import MoveItem_Transaction from './transactions/MoveItem_Transaction'
 
 class App extends React.Component {
     constructor(props) {
@@ -18,6 +21,9 @@ class App extends React.Component {
         // THIS WILL TALK TO LOCAL STORAGE
         this.db = new DBManager();
 
+        // THIS WILL MANAGE OUR TRANSACTIONS
+        this.tps = new jsTPS();
+        
         // GET THE SESSION DATA FROM OUR DATA MANAGER
         let loadedSessionData = this.db.queryGetSessionData();
 
@@ -68,10 +74,12 @@ class App extends React.Component {
         }), () => {
             // PUTTING THIS NEW LIST IN PERMANENT STORAGE
             // IS AN AFTER EFFECT
+            this.tps.clearAllTransactions();
             this.db.mutationCreateList(newList);
             this.db.mutationUpdateSessionData(this.state.sessionData);
         });
     }
+
     renameList = (key, newName) => {
         let newKeyNamePairs = [...this.state.sessionData.keyNamePairs];
         // NOW GO THROUGH THE ARRAY AND FIND THE ONE TO RENAME
@@ -99,6 +107,7 @@ class App extends React.Component {
         }), () => {
             // AN AFTER EFFECT IS THAT WE NEED TO MAKE SURE
             // THE TRANSACTION STACK IS CLEARED
+            this.tps.clearAllTransactions();
             let list = this.db.queryGetList(key);
             list.name = newName;
             this.db.mutationUpdateList(list);
@@ -124,9 +133,55 @@ class App extends React.Component {
         }), () => {
             // ANY AFTER EFFECTS?
             // let list = this.db.queryGetList(currentList.key);
+            this.tps.clearAllTransactions();
             this.db.mutationUpdateSessionData(this.state.sessionData);
         });
     }
+
+    undoList = () => {
+        if(this.tps.hasTransactionToUndo()){
+            let itemKeyPair = this.tps.undoTransaction()
+            let current = this.state.currentList
+            current.items[itemKeyPair.key] = itemKeyPair.name
+    
+            this.setState(prevState => ({
+                currentList: current,
+                listKeyPairMarkedForDelete: prevState.listKeyPairMarkedForDeletion,
+                sessionData: prevState.sessionData
+            }), () => {
+                
+                //console.log(transaction) 
+                // this.tps.addTransaction(transaction)
+                this.db.mutationUpdateList(current);
+                this.db.mutationUpdateSessionData(this.state.sessionData)
+    
+            });
+        }
+        
+    }
+
+    redoList = () => {
+        if(this.tps.hasTransactionToRedo()){
+            let itemKeyPair = this.tps.doTransaction()
+            let current = this.state.currentList
+            current.items[itemKeyPair.key] = itemKeyPair.name
+            // console.log(itemKeyPair.name)
+            // console.log(current.item[itemKeyPair.key])
+            // current.item[itemKeyPair.key] = itemKeyPair.name
+    
+            this.setState(prevState => ({
+                currentList: current,
+                listKeyPairMarkedForDelete: prevState.listKeyPairMarkedForDeletion,
+                sessionData: prevState.sessionData
+            }), () => {
+    
+                this.db.mutationUpdateList(current);
+                this.db.mutationUpdateSessionData(this.state.sessionData)
+            });
+        }
+        
+    }
+
     deleteList = (keyNamePair) => {
         // SOMEHOW YOU ARE GOING TO HAVE TO FIGURE OUT
         // WHICH LIST IT IS THAT THE USER WANTS TO
@@ -142,25 +197,67 @@ class App extends React.Component {
         })
     }
 
+    changeItem(id, text) {
+        this.state.currentList.items[id] = text;
+        // this.view.update(this.currentList);
+        let list = this.db.queryGetList(this.state.currentList.key);
+        this.db.mutationUpdateList(list);
+        this.db.mutationUpdateSessionData(this.state.sessionData);
+    }
+
+    addChangeItemTransaction = (id, oldText, newText) => {
+        // console.log(oldText)
+        this.setState(prevState => ({
+
+            currentList: prevState.currentList,
+            listKeyPairMarkedForDeletion: prevState.listKeyPairMarkedForDeletion,
+            sessionData: prevState.sessionData
+        }), () =>{
+            // console.log("new transaction")
+            // console.log(id)
+            
+            // console.log(newText)
+            let transaction = new ChangeItem_Transaction(id, oldText, newText);
+            //console.log(transaction) 
+            this.tps.addTransaction(transaction)
+            
+        })
+    }
+
+    makeMoveItem_Transaction(start, target){
+        // let moveTransaction = new MoveItem_Transaction(this, start, target);
+        // this.tps.addTransaction(moveTransaction);
+        // this.view.updateToolbarButtons(this);
+    }
+
+
     renameItem = (key, newName) => {
         let currentList = this.state.currentList
-    
-        currentList.items[key]=newName
+        if(currentList.items[key] !== newName){
+            const oldName = `${currentList.items[key]}`
+            console.log("Old Name:" + oldName)
+            console.log("New Name:" + newName)
+            currentList.items[key]=newName
+            this.setState(prevState => ({
+                currentList: prevState.currentList,
+                listKeyPairMarkedForDeletion: prevState.listKeyPairMarkedForDeletion,
+                sessionData: {
+                    nextKey: prevState.sessionData.nextKey,
+                    counter: prevState.sessionData.counter,
+                    keyNamePairs: prevState.sessionData.keyNamePairs
+                }
+            }), () => {
+                this.addChangeItemTransaction(key, oldName, newName)
+                let list = this.db.queryGetList(currentList.key)
+                list.items[key]=newName
+                this.db.mutationUpdateList(list);
+                this.db.mutationUpdateSessionData(this.state.sessionData)
+            });
+        }
+        
+        
 
-        this.setState(prevState => ({
-            currentList: this.state.currentList,
-            listKeyPairMarkedForDeletion: prevState.listKeyPairMarkedForDeletion,
-            sessionData: {
-                nextKey: prevState.sessionData.nextKey,
-                counter: prevState.sessionData.counter,
-                keyNamePairs: prevState.sessionData.keyNamePairs
-            }
-        }), () => {
-            let list = this.db.queryGetList(currentList.key);
-            list.items[key]=newName
-            this.db.mutationUpdateList(list);
-            this.db.mutationUpdateSessionData(this.state.sessionData);
-        });
+        
     }
     // THIS FUNCTION SHOWS THE MODAL FOR PROMPTING THE USER
     // TO SEE IF THEY REALLY WANT TO DELETE THE LIST
@@ -181,7 +278,6 @@ class App extends React.Component {
         if(current !== null){
             if(listKeyPair.key == current.key){
                 current = null
-                console.log("testing")
             }
         }
         
@@ -202,11 +298,15 @@ class App extends React.Component {
         })
     }
     render() {
+        console.log("Rendered")
         return (
             <div id="app-root">
                 <Banner
                     title='Top 5 Lister'
-                    closeCallBack={this.closeCurrentList} />
+                    closeCallBack={this.closeCurrentList}
+                    undoCallBack={this.undoList}
+                    redoCallBack={this.redoList}
+                 />
                 <Sidebar
                     heading='Your Lists'
                     currentList={this.state.currentList}

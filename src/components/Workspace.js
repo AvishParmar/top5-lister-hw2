@@ -35,22 +35,35 @@ export default class Workspace extends React.Component {
             editActive: index
         });
     }
-    handleUpdate = (event) => {
-        this.setState({
-            text: event.target.value
-        });
+    handleUpdate = (event, index) => {
+        let id = index;
+        let textValue = this.state.text;
+        console.log(textValue)
+        if(textValue !== event.target.value){
+            this.props.renameItemCallback(id, event.target.value);
+            this.setState({
+                text: event.target.value
+            });
+        }
+        console.log("Item handleBlur: " + event.target.value);
+
+        this.handleToggleEdit();
     }
     handleKeyPress = (event, index) => {
         if (event.code === "Enter") {
-            this.handleBlur(index);
+            this.handleUpdate(event, index);
         }
     }
-    handleBlur = (index) => {
-        let id = index;
-        let textValue = this.state.text;
-        // console.log("ListCard handleBlur: " + textValue);
-        this.props.renameItemCallback(id, textValue);
-        this.handleToggleEdit();
+    handleBlur = (event, index) => {
+        this.handleUpdate(event, index)
+        // let id = index;
+        // let textValue = this.state.text;
+        // console.log(textValue)
+        // if(textValue === event.target.value){
+        //     this.props.renameItemCallback(id, textValue);
+        // }
+        // console.log("Item handleBlur: " + textValue);
+        // this.handleToggleEdit();
     }
 
     render() {
@@ -81,8 +94,7 @@ export default class Workspace extends React.Component {
                                             className='item-number'
                                             type='text'
                                             onKeyPress={event => this.handleKeyPress(event, index)}
-                                            onBlur={() => this.handleBlur(item, index)}
-                                            onChange={this.handleUpdate}
+                                            onBlur={event => this.handleBlur(event, index)}
                                             defaultValue={item}
                                         />
                                         : item

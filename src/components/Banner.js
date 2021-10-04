@@ -7,12 +7,15 @@ export default class Banner extends React.Component {
     }
 
     render() {
-        console.log(this.props)
+        console.log("Inside Banner Render")
+
         return (
             <div id="top5-banner">
                 {this.props.title}
                 <EditToolbar
                     closeCallBack={this.props.closeCallBack} 
+                    undoCallBack={this.props.undoCallBack}
+                    redoCallBack={this.props.redoCallBack}
                 />
             </div>
         );
