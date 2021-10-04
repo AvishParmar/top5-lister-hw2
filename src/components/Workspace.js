@@ -45,7 +45,6 @@ export default class Workspace extends React.Component {
                 text: event.target.value
             });
         }
-        console.log("Item handleBlur: " + event.target.value);
 
         this.handleToggleEdit();
     }

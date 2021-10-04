@@ -152,6 +152,7 @@ class App extends React.Component {
                 
                 //console.log(transaction) 
                 // this.tps.addTransaction(transaction)
+                
                 this.db.mutationUpdateList(current);
                 this.db.mutationUpdateSessionData(this.state.sessionData)
     
@@ -174,7 +175,7 @@ class App extends React.Component {
                 listKeyPairMarkedForDelete: prevState.listKeyPairMarkedForDeletion,
                 sessionData: prevState.sessionData
             }), () => {
-    
+                
                 this.db.mutationUpdateList(current);
                 this.db.mutationUpdateSessionData(this.state.sessionData)
             });
@@ -235,8 +236,8 @@ class App extends React.Component {
         let currentList = this.state.currentList
         if(currentList.items[key] !== newName){
             const oldName = `${currentList.items[key]}`
-            console.log("Old Name:" + oldName)
-            console.log("New Name:" + newName)
+            // console.log("Old Name:" + oldName)
+            // console.log("New Name:" + newName)
             currentList.items[key]=newName
             this.setState(prevState => ({
                 currentList: prevState.currentList,
@@ -298,11 +299,12 @@ class App extends React.Component {
         })
     }
     render() {
-        console.log("Rendered")
         return (
             <div id="app-root">
                 <Banner
                     title='Top 5 Lister'
+                    jsTPS={this.tps}
+                    currentList={this.state.currentList} 
                     closeCallBack={this.closeCurrentList}
                     undoCallBack={this.undoList}
                     redoCallBack={this.redoList}
