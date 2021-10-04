@@ -30,7 +30,9 @@ class App extends React.Component {
         // SETUP THE INITIAL STATE
         this.state = {
             currentList: null,
-            sessionData: loadedSessionData
+            sessionData: loadedSessionData,
+            canUndo: false,
+            canRedo: false
         }
     }
 
@@ -91,7 +93,10 @@ class App extends React.Component {
                 nextKey: prevState.sessionData.nextKey + 1,
                 counter: prevState.sessionData.counter + 1,
                 keyNamePairs: updatedPairs
-            }
+            },
+            canUndo: this.tps.hasTransactionToUndo(),
+            canRedo: this.tps.hasTransactionToRedo()
+
         }), () => {
             // PUTTING THIS NEW LIST IN PERMANENT STORAGE
             // IS AN AFTER EFFECT
@@ -124,7 +129,9 @@ class App extends React.Component {
                 nextKey: prevState.sessionData.nextKey,
                 counter: prevState.sessionData.counter,
                 keyNamePairs: newKeyNamePairs
-            }
+            },
+            canUndo: this.tps.hasTransactionToUndo(),
+            canRedo: this.tps.hasTransactionToRedo()
         }), () => {
             // AN AFTER EFFECT IS THAT WE NEED TO MAKE SURE
             // THE TRANSACTION STACK IS CLEARED
@@ -140,7 +147,9 @@ class App extends React.Component {
         let newCurrentList = this.db.queryGetList(key);
         this.setState(prevState => ({
             currentList: newCurrentList,
-            sessionData: prevState.sessionData
+            sessionData: prevState.sessionData,
+            canUndo: this.tps.hasTransactionToUndo(),
+            canRedo: this.tps.hasTransactionToRedo()
         }), () => {
             // ANY AFTER EFFECTS?
         });
@@ -150,7 +159,9 @@ class App extends React.Component {
         this.setState(prevState => ({
             currentList: null,
             listKeyPairMarkedForDeletion: prevState.listKeyPairMarkedForDeletion,
-            sessionData: this.state.sessionData
+            sessionData: this.state.sessionData,
+            canUndo: this.tps.hasTransactionToUndo(),
+            canRedo: this.tps.hasTransactionToRedo()
         }), () => {
             // ANY AFTER EFFECTS?
             // let list = this.db.queryGetList(currentList.key);
@@ -168,7 +179,9 @@ class App extends React.Component {
             this.setState(prevState => ({
                 currentList: current,
                 listKeyPairMarkedForDelete: prevState.listKeyPairMarkedForDeletion,
-                sessionData: prevState.sessionData
+                sessionData: prevState.sessionData,
+                canUndo: this.tps.hasTransactionToUndo(),
+                canRedo: this.tps.hasTransactionToRedo()
             }), () => {
                 
                 //console.log(transaction) 
@@ -194,7 +207,9 @@ class App extends React.Component {
             this.setState(prevState => ({
                 currentList: current,
                 listKeyPairMarkedForDelete: prevState.listKeyPairMarkedForDeletion,
-                sessionData: prevState.sessionData
+                sessionData: prevState.sessionData,
+                canUndo: this.tps.hasTransactionToUndo(),
+                canRedo: this.tps.hasTransactionToRedo()
             }), () => {
                 
                 this.db.mutationUpdateList(current);
@@ -212,9 +227,11 @@ class App extends React.Component {
         this.setState(prevState => ({
             currentList: prevState.currentList,
             listKeyPairMarkedForDeletion: keyNamePair,
-            sessionData: prevState.sessionData
-
+            sessionData: prevState.sessionData,
+            canUndo: this.tps.hasTransactionToUndo(),
+            canRedo: this.tps.hasTransactionToRedo()
         }), () =>{
+            this.tps.clearAllTransactions();
             this.showDeleteListModal();
         })
     }
@@ -229,20 +246,21 @@ class App extends React.Component {
 
     addChangeItemTransaction = (id, oldText, newText) => {
         // console.log(oldText)
+        let transaction = new ChangeItem_Transaction(id, oldText, newText);
+            //console.log(transaction) 
+        this.tps.addTransaction(transaction)
         this.setState(prevState => ({
 
             currentList: prevState.currentList,
             listKeyPairMarkedForDeletion: prevState.listKeyPairMarkedForDeletion,
-            sessionData: prevState.sessionData
+            sessionData: prevState.sessionData,
+            canUndo: this.tps.hasTransactionToUndo(),
+            canRedo: this.tps.hasTransactionToRedo()
         }), () =>{
             // console.log("new transaction")
             // console.log(id)
             
             // console.log(newText)
-            let transaction = new ChangeItem_Transaction(id, oldText, newText);
-            //console.log(transaction) 
-            this.tps.addTransaction(transaction)
-            
         })
     }
 
@@ -260,6 +278,9 @@ class App extends React.Component {
             // console.log("Old Name:" + oldName)
             // console.log("New Name:" + newName)
             currentList.items[key]=newName
+            this.addChangeItemTransaction(key, oldName, newName)
+            console.log("hasREDO: "+this.tps.hasTransactionToRedo())
+            console.log("hasUNDO: "+this.tps.hasTransactionToUndo())
             this.setState(prevState => ({
                 currentList: prevState.currentList,
                 listKeyPairMarkedForDeletion: prevState.listKeyPairMarkedForDeletion,
@@ -267,19 +288,17 @@ class App extends React.Component {
                     nextKey: prevState.sessionData.nextKey,
                     counter: prevState.sessionData.counter,
                     keyNamePairs: prevState.sessionData.keyNamePairs
-                }
+                },
+                canUndo: this.tps.hasTransactionToUndo(),
+                canRedo: this.tps.hasTransactionToRedo()
             }), () => {
-                this.addChangeItemTransaction(key, oldName, newName)
+                
                 let list = this.db.queryGetList(currentList.key)
                 list.items[key]=newName
                 this.db.mutationUpdateList(list);
                 this.db.mutationUpdateSessionData(this.state.sessionData)
             });
         }
-        
-        
-
-        
     }
     // THIS FUNCTION SHOWS THE MODAL FOR PROMPTING THE USER
     // TO SEE IF THEY REALLY WANT TO DELETE THE LIST
@@ -292,6 +311,8 @@ class App extends React.Component {
         let modal = document.getElementById("delete-modal");
         modal.classList.remove("is-visible");
     }
+
+
 
     confirmDeleteListModal(listKeyPair, keyNamePairs){
         let current = this.state.currentList
@@ -312,7 +333,9 @@ class App extends React.Component {
                 nextKey: prevState.sessionData.nextKey,
                 counter: prevState.sessionData.counter,
                 keyNamePairs: newKeyNamePairs
-            }
+            },
+            canUndo: this.tps.hasTransactionToUndo(),
+            canRedo: this.tps.hasTransactionToRedo()
         }), () => {
             this.hideDeleteListModal();
             this.db.mutationUpdateList(newKeyNamePairs);
@@ -325,6 +348,8 @@ class App extends React.Component {
                 <Banner
                     title='Top 5 Lister'
                     jsTPS={this.tps}
+                    canUndo={this.state.canUndo}
+                    canRedo={this.state.canRedo}
                     currentList={this.state.currentList} 
                     closeCallBack={this.closeCurrentList}
                     undoCallBack={this.undoList}

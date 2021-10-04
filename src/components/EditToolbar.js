@@ -4,10 +4,12 @@ export default class EditToolbar extends React.Component {
     constructor(props){
         super(props)
 
-        this.state = {
-            jsTPS: this.props.jsTPS,
-            current: this.props.currentList
-        }
+        // this.state = {
+        //     jsTPS: this.props.jsTPS,
+        //     current: this.props.currentList,
+        //     canUndo: this.props.canUndo,
+        //     canRedo: this.props.canRedo,
+        // }
     }
 
     handleClose = (event) => {
@@ -16,7 +18,6 @@ export default class EditToolbar extends React.Component {
     }
 
     handleUndo = (event) => {
-        
         if(event.detail === 1)
             this.props.undoCallBack();
     }
@@ -25,7 +26,6 @@ export default class EditToolbar extends React.Component {
         if(event.detail === 1)
             this.props.redoCallBack();
     }
-
     
     render() {
         
@@ -35,7 +35,7 @@ export default class EditToolbar extends React.Component {
                     id='undo-button' 
                     className="top5-button"
                     onClick={this.handleUndo}
-                    style={this.state.jsTPS.hasTransactionToUndo() ? {} : {opacity: 0.5}}
+                    style={this.props.canUndo ? {} : {opacity: 0.5}}
                     >
                         &#x21B6;
                 </div>
@@ -43,7 +43,7 @@ export default class EditToolbar extends React.Component {
                     id='redo-button'
                     className="top5-button"
                     onClick={this.handleRedo}
-                    style={this.state.jsTPS.hasTransactionToRedo() ? {} : {opacity: 0.5}}
+                    style={this.props.canRedo ? {} : {opacity: 0.5}}
                     >
                         &#x21B7;
                 </div>
@@ -51,7 +51,7 @@ export default class EditToolbar extends React.Component {
                     id='close-button'
                     className="top5-button"
                     onClick={this.handleClose}
-                    style={(this.state.current === null) ? {opacity: 0.5} : {}}
+                    style={(this.props.currentList === null) ? {opacity: 0.5} : {}}
                     >
                         &#x24E7;
                 </div>
