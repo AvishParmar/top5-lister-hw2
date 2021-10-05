@@ -3,18 +3,12 @@ import React from "react";
 export default class EditToolbar extends React.Component {
     constructor(props){
         super(props)
-
-        // this.state = {
-        //     jsTPS: this.props.jsTPS,
-        //     current: this.props.currentList,
-        //     canUndo: this.props.canUndo,
-        //     canRedo: this.props.canRedo,
-        // }
     }
 
     handleClose = (event) => {
         if(event.detail === 1)
             this.props.closeCallBack();
+        
     }
 
     handleUndo = (event) => {

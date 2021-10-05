@@ -120,9 +120,12 @@ class App extends React.Component {
         // WE MAY HAVE TO RENAME THE currentList
         let currentList = this.state.currentList;
         if (currentList.key === key) {
-            currentList.name = newName;
+            if(currentList.name !== newName){
+                currentList.name = newName;
+                this.tps.clearAllTransactions();
+            }  
         }
-
+        
         this.setState(prevState => ({
             currentList: prevState.currentList,
             sessionData: {
@@ -135,7 +138,7 @@ class App extends React.Component {
         }), () => {
             // AN AFTER EFFECT IS THAT WE NEED TO MAKE SURE
             // THE TRANSACTION STACK IS CLEARED
-            this.tps.clearAllTransactions();
+            
             let list = this.db.queryGetList(key);
             list.name = newName;
             this.db.mutationUpdateList(list);
@@ -156,6 +159,7 @@ class App extends React.Component {
     }
     // THIS FUNCTION BEGINS THE PROCESS OF CLOSING THE CURRENT LIST
     closeCurrentList = () => {
+        this.tps.clearAllTransactions();
         this.setState(prevState => ({
             currentList: null,
             listKeyPairMarkedForDeletion: prevState.listKeyPairMarkedForDeletion,
@@ -165,7 +169,7 @@ class App extends React.Component {
         }), () => {
             // ANY AFTER EFFECTS?
             // let list = this.db.queryGetList(currentList.key);
-            this.tps.clearAllTransactions();
+            
             this.db.mutationUpdateSessionData(this.state.sessionData);
         });
     }
@@ -224,6 +228,7 @@ class App extends React.Component {
         // WHICH LIST IT IS THAT THE USER WANTS TO
         // DELETE AND MAKE THAT CONNECTION SO THAT THE
         // NAME PROPERLY DISPLAYS INSIDE THE MODAL
+        this.tps.clearAllTransactions();
         this.setState(prevState => ({
             currentList: prevState.currentList,
             listKeyPairMarkedForDeletion: keyNamePair,
@@ -231,7 +236,7 @@ class App extends React.Component {
             canUndo: this.tps.hasTransactionToUndo(),
             canRedo: this.tps.hasTransactionToRedo()
         }), () =>{
-            this.tps.clearAllTransactions();
+            
             this.showDeleteListModal();
         })
     }
@@ -265,9 +270,21 @@ class App extends React.Component {
     }
 
     makeMoveItem_Transaction(start, target){
-        // let moveTransaction = new MoveItem_Transaction(this, start, target);
-        // this.tps.addTransaction(moveTransaction);
-        // this.view.updateToolbarButtons(this);
+        let moveTransaction = new MoveItem_Transaction(start, target);
+        this.tps.addTransaction(moveTransaction);
+        this.setState(prevState => ({
+
+            currentList: prevState.currentList,
+            listKeyPairMarkedForDeletion: prevState.listKeyPairMarkedForDeletion,
+            sessionData: prevState.sessionData,
+            canUndo: this.tps.hasTransactionToUndo(),
+            canRedo: this.tps.hasTransactionToRedo()
+        }), () =>{
+            // console.log("new transaction")
+            // console.log(id)
+            
+            // console.log(newText)
+        })
     }
 
 
@@ -279,8 +296,8 @@ class App extends React.Component {
             // console.log("New Name:" + newName)
             currentList.items[key]=newName
             this.addChangeItemTransaction(key, oldName, newName)
-            console.log("hasREDO: "+this.tps.hasTransactionToRedo())
-            console.log("hasUNDO: "+this.tps.hasTransactionToUndo())
+            // console.log("hasREDO: "+this.tps.hasTransactionToRedo())
+            // console.log("hasUNDO: "+this.tps.hasTransactionToUndo())
             this.setState(prevState => ({
                 currentList: prevState.currentList,
                 listKeyPairMarkedForDeletion: prevState.listKeyPairMarkedForDeletion,
@@ -367,6 +384,7 @@ class App extends React.Component {
                 <Workspace
                     currentList={this.state.currentList} 
                     renameItemCallback={this.renameItem}
+                    moveItemCallback={this.makeMoveItem_Transaction}
                 />    
                 <Statusbar
                     currentList={this.state.currentList} />
