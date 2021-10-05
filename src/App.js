@@ -316,8 +316,8 @@ class App extends React.Component {
 
     confirmDeleteListModal(listKeyPair, keyNamePairs){
         let current = this.state.currentList
-        console.log(current)
-        console.log(listKeyPair)
+        // console.log(current)
+        // console.log(listKeyPair)
         if(current !== null){
             if(listKeyPair.key == current.key){
                 current = null

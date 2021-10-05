@@ -1,17 +1,7 @@
 import React, { Component } from 'react';
 
 export default class DeleteModal extends Component {
-    // constructor(props){
-    //     super(props)
-        
-    //     this.state = {
-    //         currentlis
-    //     }
-    // }
 
-    // // handleClick() = (event) => {
-
-    // }
     render() {
         
         const { listKeyPair, hideDeleteListModalCallback, confirmDeleteListModalCallback, keyNamePairs} = this.props;
