@@ -17,7 +17,6 @@ export default class ChangeItem_Transaction extends jsTPS_Transaction {
         this.oldText = initOldText;
         this.newText = initNewText;
 
-        
     }
     
     doTransaction() {

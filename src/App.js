@@ -65,45 +65,48 @@ class App extends React.Component {
     // THIS FUNCTION BEGINS THE PROCESS OF CREATING A NEW LIST
     createNewList = () => {
         // FIRST FIGURE OUT WHAT THE NEW LIST'S KEY AND NAME WILL BE
-        let newKey = this.state.sessionData.nextKey;
-        let newName = "Untitled" + newKey;
-
-        // MAKE THE NEW LIST
-        let newList = {
-            key: newKey,
-            name: newName,
-            items: ["?", "?", "?", "?", "?"]
-        };
-
-        // MAKE THE KEY,NAME OBJECT SO WE CAN KEEP IT IN OUR
-        // SESSION DATA SO IT WILL BE IN OUR LIST OF LISTS
-        let newKeyNamePair = { "key": newKey, "name": newName };
-        let updatedPairs = [...this.state.sessionData.keyNamePairs, newKeyNamePair];
-        this.sortKeyNamePairsByName(updatedPairs);
-
-        // CHANGE THE APP STATE SO THAT IT THE CURRENT LIST IS
-        // THIS NEW LIST AND UPDATE THE SESSION DATA SO THAT THE
-        // NEXT LIST CAN BE MADE AS WELL. NOTE, THIS setState WILL
-        // FORCE A CALL TO render, BUT THIS UPDATE IS ASYNCHRONOUS,
-        // SO ANY AFTER EFFECTS THAT NEED TO USE THIS UPDATED STATE
-        // SHOULD BE DONE VIA ITS CALLBACK
-        this.setState(prevState => ({
-            currentList: newList,
-            sessionData: {
-                nextKey: prevState.sessionData.nextKey + 1,
-                counter: prevState.sessionData.counter + 1,
-                keyNamePairs: updatedPairs
-            },
-            canUndo: this.tps.hasTransactionToUndo(),
-            canRedo: this.tps.hasTransactionToRedo()
-
-        }), () => {
-            // PUTTING THIS NEW LIST IN PERMANENT STORAGE
-            // IS AN AFTER EFFECT
-            this.tps.clearAllTransactions();
-            this.db.mutationCreateList(newList);
-            this.db.mutationUpdateSessionData(this.state.sessionData);
-        });
+        if(this.state.currentList === null){
+            let newKey = this.state.sessionData.nextKey;
+            let newName = "Untitled" + newKey;
+    
+            // MAKE THE NEW LIST
+            let newList = {
+                key: newKey,
+                name: newName,
+                items: ["?", "?", "?", "?", "?"]
+            };
+    
+            // MAKE THE KEY,NAME OBJECT SO WE CAN KEEP IT IN OUR
+            // SESSION DATA SO IT WILL BE IN OUR LIST OF LISTS
+            let newKeyNamePair = { "key": newKey, "name": newName };
+            let updatedPairs = [...this.state.sessionData.keyNamePairs, newKeyNamePair];
+            this.sortKeyNamePairsByName(updatedPairs);
+    
+            // CHANGE THE APP STATE SO THAT IT THE CURRENT LIST IS
+            // THIS NEW LIST AND UPDATE THE SESSION DATA SO THAT THE
+            // NEXT LIST CAN BE MADE AS WELL. NOTE, THIS setState WILL
+            // FORCE A CALL TO render, BUT THIS UPDATE IS ASYNCHRONOUS,
+            // SO ANY AFTER EFFECTS THAT NEED TO USE THIS UPDATED STATE
+            // SHOULD BE DONE VIA ITS CALLBACK
+            this.setState(prevState => ({
+                currentList: newList,
+                sessionData: {
+                    nextKey: prevState.sessionData.nextKey + 1,
+                    counter: prevState.sessionData.counter + 1,
+                    keyNamePairs: updatedPairs
+                },
+                canUndo: this.tps.hasTransactionToUndo(),
+                canRedo: this.tps.hasTransactionToRedo()
+    
+            }), () => {
+                // PUTTING THIS NEW LIST IN PERMANENT STORAGE
+                // IS AN AFTER EFFECT
+                this.tps.clearAllTransactions();
+                this.db.mutationCreateList(newList);
+                this.db.mutationUpdateSessionData(this.state.sessionData);
+            });
+        }
+       
     }
 
     renameList = (key, newName) => {
@@ -120,7 +123,7 @@ class App extends React.Component {
         // WE MAY HAVE TO RENAME THE currentList
         let currentList = this.state.currentList;
         if (currentList.key === key) {
-            if(currentList.name !== newName){
+            if(currentList.name != newName){
                 currentList.name = newName;
                 this.tps.clearAllTransactions();
             }  
@@ -145,9 +148,26 @@ class App extends React.Component {
             this.db.mutationUpdateSessionData(this.state.sessionData);
         });
     }
+
+    // refreshList = (keyNamePair) => {
+    //     let items = keyNamePair.items
+    //     for(i = 0; i < 6; i++){
+    //         items[i].id = i
+    //     }
+    // }
     // THIS FUNCTION BEGINS THE PROCESS OF LOADING A LIST FOR EDITING
     loadList = (key) => {
+        let current = this.state.currentList
         let newCurrentList = this.db.queryGetList(key);
+        console.log(newCurrentList)
+        console.log(current)
+        if(current !== null){
+            if(current.key !== newCurrentList.key){
+                console.log("Transactions cleared")
+                this.tps.clearAllTransactions();
+            }
+        }
+        
         this.setState(prevState => ({
             currentList: newCurrentList,
             sessionData: prevState.sessionData,
@@ -261,12 +281,7 @@ class App extends React.Component {
             sessionData: prevState.sessionData,
             canUndo: this.tps.hasTransactionToUndo(),
             canRedo: this.tps.hasTransactionToRedo()
-        }), () =>{
-            // console.log("new transaction")
-            // console.log(id)
-            
-            // console.log(newText)
-        })
+        }));
     }
 
     makeMoveItem_Transaction(start, target){
@@ -279,12 +294,7 @@ class App extends React.Component {
             sessionData: prevState.sessionData,
             canUndo: this.tps.hasTransactionToUndo(),
             canRedo: this.tps.hasTransactionToRedo()
-        }), () =>{
-            // console.log("new transaction")
-            // console.log(id)
-            
-            // console.log(newText)
-        })
+        }));
     }
 
 
