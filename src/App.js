@@ -283,18 +283,29 @@ class App extends React.Component {
             canRedo: this.tps.hasTransactionToRedo()
         }));
     }
+    moveItem(oldIndex, newIndex) {
+        this.state.currentList.items.splice(newIndex, 0, this.items.splice(oldIndex, 1)[0]);
+    }
 
-    makeMoveItem_Transaction(start, target){
-        let moveTransaction = new MoveItem_Transaction(start, target);
-        this.tps.addTransaction(moveTransaction);
-        this.setState(prevState => ({
+    makeMoveItem_Transaction(currentList, tps, start, target){
+        // let current = currentList;
+        // // current.items.splice(target-1, 0, current.items.splice(start-1, 1)[0]);
 
-            currentList: prevState.currentList,
-            listKeyPairMarkedForDeletion: prevState.listKeyPairMarkedForDeletion,
-            sessionData: prevState.sessionData,
-            canUndo: this.tps.hasTransactionToUndo(),
-            canRedo: this.tps.hasTransactionToRedo()
-        }));
+        // let moveTransaction = new MoveItem_Transaction(start, target);
+        // const {oldIndex, newIndex} = tps.addTransaction(moveTransaction);
+        
+        // this.setState(prevState => ({
+
+        //     currentList: current,
+        //     listKeyPairMarkedForDeletion: prevState.listKeyPairMarkedForDeletion,
+        //     sessionData: prevState.sessionData,
+        //     canUndo: this.tps.hasTransactionToUndo(),
+        //     canRedo: this.tps.hasTransactionToRedo()
+        // }), () => {
+        //     this.moveItem(oldIndex, newIndex)
+        //     this.db.mutationUpdateList(current);
+        //     this.db.mutationUpdateSessionData(this.state.sessionData)
+        // });
     }
 
 
@@ -392,6 +403,7 @@ class App extends React.Component {
                     renameListCallback={this.renameList}
                 />
                 <Workspace
+                    jsTPS={this.tps}
                     currentList={this.state.currentList} 
                     renameItemCallback={this.renameItem}
                     moveItemCallback={this.makeMoveItem_Transaction}

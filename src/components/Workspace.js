@@ -64,18 +64,27 @@ export default class Workspace extends React.Component {
         // console.log("Item handleBlur: " + textValue);
         // this.handleToggleEdit();
     }
-    handleOnDragStart = (ev) => {
-        ev.dataTransfer.setData("text", ev.target.id);
+    handleOnDragEnter = (event) => {
+        
     }
-    handleOnDragOver = (ev) => {
-        ev.preventDefault();
+    handleOnDragLeave = (event) => {
+        
     }
-    handleOnDrop = (ev) => {
-        ev.preventDefault();
-        let data = ev.dataTransfer.getData("text");
-        data = data.charAt(data.length-1)-1;
-        let target = ev.target.id.slice(-1)-1;
-        this.props.moveItemCallback(data, target);
+    handleOnDragStart = (event) => {
+        event.dataTransfer.setData("text",event.target.id);
+    }
+    handleOnDragOver = (event) => {
+        event.preventDefault();
+    }
+    handleOnDrop = (event) => {
+        // event.preventDefault();
+        // let target = event.target.id.slice(-1);
+        // // console.log(target)
+        // let data = event.dataTransfer.getData("text").slice(-1);
+        // // console.log(data)
+        // // console.log(this.props.currentList)
+        // this.props.moveItemCallback(this.props.currentList, this.props.jsTPS, data, target);
+        // this.setState({className:"top5-item"});
     }
 
     render() {
@@ -97,14 +106,14 @@ export default class Workspace extends React.Component {
                                 <div
                                     id={index}
                                     className="item-number"
-                                    classList={"droppable"}
                                     draggable={true}
                                     onClick={event => this.handleClick(event, index)}
                                     onKeyPress={event => this.handleKeyPress(event, index)}
-                                    onDragStart={event => this.handleOnDragStart(event)}
-                                    onDragOver={event => this.handleOnDragOver(event)}
-                                    onDrop={event => this.handleOnDragOver(event)}
-                                    
+                                    onDragStart={this.handleOnDragStart}
+                                    onDragOver={this.handleOnDragOver}
+                                    onDragEnter={this.handleOnDragEnter}
+                                    onDragLeave={this.handleOnDragLeave}
+                                    onDrop={this.handleOnDrop}
                                     >
                                     
                                     {(this.state.editActive === index)

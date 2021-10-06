@@ -18,10 +18,10 @@ export default class MoveItem_Transaction extends jsTPS_Transaction {
     }
 
     doTransaction() {
-        this.model.moveItem(this.oldItemIndex, this.newItemIndex);
+        // return {oldIndex: this.oldItemIndex, newIndex: this.newItemIndex};
     }
     
     undoTransaction() {
-        this.model.moveItem(this.newItemIndex, this.oldItemIndex);
+        // return {oldIndex: this.newItemIndex, newIndex: this.oldItemIndex};
     }
 }

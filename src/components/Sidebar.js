@@ -20,7 +20,7 @@ export default class Sidebar extends React.Component {
                         onClick={createNewListCallback}
                         className="top5-button"
                         value="+" 
-                        style={(this.props.currentList !== null) ? {opacity: 0.5} : {}}
+                        style={(this.props.currentList !== null) ? {opacity: 0.5, cursor: "not-allowed"} : {}}
                         />
                     {heading}
                 </div>
